@@ -7,3 +7,11 @@ To get it to function you will need to first install the primer3 module. The mod
 The entire primer3 pacakge will need to be copied into your working folder for functionality.
 
 A sample output (Sample_mutagenesis.csv) has been provided in the repository for reference.
+
+# Note
+
+to get primer3 to work, install it as a user
+
+pip3 install primer3-py
+
+copy the .local/lib/python3.7/site-package/primer3 to the working folder
