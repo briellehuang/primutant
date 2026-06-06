@@ -29,13 +29,14 @@ med_test = int(0)
 low_test = int(0)
 
 
-"""Import melting, csv, os, re, and primer3 file modules"""
+"""Import modules"""
 
 import melting
 import csv
 import os
 import re
 import primer3
+from pathlib import Path
 
 """Prompts user until entering a valid sequence for the program"""
 
@@ -252,7 +253,7 @@ def seq_translate(seq, dictionary):
 
 def create_output():
     seq_translate(seq, codon_table)
-    with open(csv_name,'w',newline='') as f:
+    with open(csv_path,'w',newline='') as f:
         thewriter=csv.writer(f)
         thewriter.writerow(["DNA sequence", seq])
         thewriter.writerow(["Amino acid sequence", aa_seq])
@@ -316,7 +317,7 @@ def write_result(i, x, p, tmp2, tmp3, aa, mut, mut_num):
     tmp2.append(str(gcfor))
     tmp3.append(str(gcfor))
     #Adds the generated primers to the csv file
-    with open(csv_name,'a+',newline='') as f:
+    with open(csv_path,'a+',newline='') as f:
         thewriter=csv.writer(f)
         thewriter.writerow(tmp2)
         thewriter.writerow(tmp3)
@@ -345,7 +346,7 @@ def mutation(i, dictionary, cod_id, aa):
 """Code block for Deep Mutation"""
 
 def deep_mutation():
-    with open(csv_name,'a+',newline='') as f:
+    with open(csv_path,'a+',newline='') as f:
         thewriter = csv.writer(f)
         thewriter.writerow(['Deep_Mutation'])
     for i in range(reg_start-1,reg_end-3,3):
@@ -362,7 +363,7 @@ def deep_mutation():
 """Code block for custom scan"""
 
 def custom_scan():
-    with open(csv_name,'a+',newline='') as f:
+    with open(csv_path,'a+',newline='') as f:
         thewriter = csv.writer(f)
         thewriter.writerow(['Custom_Scan'])
 
@@ -382,7 +383,7 @@ def custom_scan():
             tmp1.append("N/A")
             phrase = "Codon position {} is already {}.".format(s, scanmutselection)
             tmp1.append(phrase)
-            with open(csv_name,'a+',newline='') as f:
+            with open(csv_path,'a+',newline='') as f:
                 thewriter=csv.writer(f)
                 thewriter.writerow(tmp1)
         else:
@@ -405,7 +406,7 @@ def phos_mut():
         else:
             print('Please enter a valid choice')
 
-    with open(csv_name,'a+',newline='') as f:
+    with open(csv_path,'a+',newline='') as f:
         thewriter = csv.writer(f)
         thewriter.writerow(['Phosphorylation_Site_Mutagenesis'])
 
@@ -451,6 +452,10 @@ def StructureCheck(Structure, Structure_Check, primTm, warning, tmp):
 
 def main():
     global gene_name
+    global PROJECT_ROOT
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent
+    OUTPUT_DIR = PROJECT_ROOT / "output"
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     while True:
         gene_name = input('Please enter the gene name with no spaces or special characters: ')
         if not gene_name:
@@ -461,8 +466,10 @@ def main():
             continue
         global csv_name
         csv_name = f"{gene_name}_mutagenesis.csv"
-        if os.path.exists(csv_name):
-            print(f"The file {csv_name} already exists. Please choose a diferent name.")
+        global csv_path
+        csv_path = OUTPUT_DIR / csv_name
+        if os.path.exists(csv_path):
+            print(f"The file {csv_path} already exists. Please choose a diferent name.")
             continue
         break
     seq_test()
