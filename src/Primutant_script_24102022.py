@@ -16,6 +16,7 @@ ecoli_dict={'F': ['TTT', 'TTC'], 'L': ['TTA', 'TTG', 'CTT', 'CTG'], 'I': ['ATT',
 mammalian_dict={'F': ['TTT', 'TTC'], 'L': ['TTG', 'CTT', 'CTC', 'CTG'], 'I': ['ATT', 'ATC', 'ATA'], 'M': ['ATG'], 'V': ['GTT', 'GTC', 'GTG'], 'S': ['TCT', 'TCC', 'TCA', 'AGT', 'AGC'], 'P': ['CCT', 'CCC', 'CCA'], 'T': ['ACT', 'ACC', 'ACA', 'ACG'], 'A': ['GCT', 'GCC', 'GCA'], 'Y': ['TAT', 'TAC'], 'Stop': ['TAA', 'TAG', 'TGA'], 'H': ['CAT', 'CAC'], 'Q': ['CAA', 'CAG'], 'N': ['AAT', 'AAC'], 'K': ['AAA', 'AAG'], 'D': ['GAT', 'GAC'], 'E': ['GAA', 'GAG'], 'C': ['TGT', 'TGC'], 'W': ['TGG'], 'R': ['CGT', 'CGC', 'CGG', 'AGA', 'AGG'], 'G': ['GGT', 'GGC', 'GGA', 'GGG']}
 ala_codon = ['GCT', 'GCC', 'GCA', 'GCG']
 nucleotide_list = ["A", "T", "C", "G"]
+#OCT 24 2022, Added new codon table for code funtionality.
 codon_table = {
         'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M','ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T','AAC':'N', 'AAT':'N', 'AAA':'K', 'AAG':'K',
         'AGC':'S', 'AGT':'S', 'AGA':'R', 'AGG':'R','CTA':'L', 'CTC':'L', 'CTG':'L', 'CTT':'L','CCA':'P', 'CCC':'P', 'CCG':'P', 'CCT':'P',
@@ -59,6 +60,7 @@ def seq_test():
 def start_check():
     while True:
     #allows user to input location without restarting program
+    #OCT 24 2022, Added edit to allow alternative start codons
         global start
         start=int(input("Enter nucleotide that is position 1 of start codon:"))
         start_codon=(seq[start-1:start+2])
@@ -70,9 +72,9 @@ def start_check():
             else:
                 pass
         else:
+            #print(start)
             print("This is a start codon. You are okay to continue")
             break
-
 
 def Dict_select():
     while True:
@@ -207,7 +209,6 @@ def GC_per(sequence, tmp):
         else:
             return ""
 
-
 def gcpercent(x):
     capgc = x.upper()
     gcx = capgc.count("C") + capgc.count("G")
@@ -222,8 +223,7 @@ def rev_comp(seq):
     complement_list=list(complement)
     rev_comp_seq=complement_list[::-1]
     return (''.join(rev_comp_seq))
-
-
+#OCT 24, Added new function to translate nucleotide sequence to protein sequences
 def seq_translate(seq, dictionary):
     global aa_seq
     global mut_seq
@@ -248,10 +248,17 @@ def seq_translate(seq, dictionary):
                 else:
                     mut_seq = mut_seq + aa
 
+
+
+
+
+
+
 """Creates a output file with appropriate headings"""
 
 def create_output():
     #changes the file name to be "genename_mutagenesis.csv"
+    #OCT 24 2022, Added new rows to accomodate changes to include amino acids
     global csv_name
     csv_name = gene_name + "_mutagenesis" + ".csv"
     csv_name = csv_name.strip()
@@ -265,6 +272,7 @@ def create_output():
         thewriter.writerow(["start of region to be mutated",reg_start])
         thewriter.writerow(["end of region to be mutated",reg_end])
         thewriter.writerow(['codon','position number','primer name','primer sequence', 'melting temp (Celsius)', 'GC content (%)', 'Changed codon, # of nucleotide mismatches', 'Warnings', 'test primer candidate'])
+""" MADE SOME EDITS ABOVE TO THE EXCEL OUTPUT - Kerry"""
 
 """Checks for the difference between the dictionary and the current codon"""
 
@@ -307,15 +315,22 @@ def write_result(i, x, p, tmp2, tmp3, aa, mut, mut_num):
     tmp3.append(mut_num)
     a=StructureCheck("hairpins", primer3.calcHairpin(for_primer), tmforprim, warning2, tmp2)
     b=StructureCheck("hairpins", primer3.calcHairpin(rev_primer), tmrevprim, warning3, tmp3)
+    """ OUR PRIMERS ALWAYS FORM HETERODIMERS SO I REMOVED THIS - KERRY
+    c=StructureCheck("heterodimers", primer3.calcHeterodimer(for_primer, rev_primer), tmforprim, warning2, tmp2)
+    """
     d=StructureCheck("homodimers", primer3.calcHomodimer(for_primer), tmforprim, warning2, tmp2)
     e=StructureCheck("homodimers", primer3.calcHomodimer(rev_primer), tmrevprim, warning3, tmp3)
     f=tmcheck(tmforprim)
     g=tmcheck(tmrevprim)
     gcfor = GC_per(for_primer, i)
+    # gcrev is not needed - SM
+    #gcrev = GC_per(rev_primer, i)
+    #moved str(gcfor) and str(gcrev) because redundant. added commas for readability -SM
     combfor = str(a) + (', ') + str(d) + (', ') + str(f)
     combrev = str(b) + (', ') + str(e) + (', ') + str(g)
     tmp2.append(combfor)
     tmp3.append(combrev)
+    """MOVE THINGS AROUND SLIGHTLY TO RECOMMEND PRIMERS TO TEST AT THE END"""
     tmp2.append(str(gcfor))
     tmp3.append(str(gcfor))
     #Adds the generated primers to the csv file
@@ -323,6 +338,8 @@ def write_result(i, x, p, tmp2, tmp3, aa, mut, mut_num):
         thewriter=csv.writer(f)
         thewriter.writerow(tmp2)
         thewriter.writerow(tmp3)
+
+
 
 """generates primers for mutagenesis"""
 
@@ -341,6 +358,7 @@ def mutation(i, dictionary, cod_id, aa):
 
     mut_num = orig_cod + " to " + changed_cod[2:5] + ", " + changed_cod[8]
 
+    #print(mut)
     #doesn't use mutations that are stop codons
     if aa != "Stop":
         write_result(i, x, p, tmp2, tmp3, aa, mut, mut_num)
@@ -378,6 +396,7 @@ def custom_scan():
         cod_id=seq[i:i+3]
         if seq[i:i+3] in codon_dict[scanmutselection]:
             s=conv_pos_codonnum(i)
+
             tmp1=[cod_id]
             tmp1.append(s)
             #Added more info so there arent simply two blanks
@@ -410,6 +429,7 @@ def phos_mut():
     with open(csv_name,'a+',newline='') as f:
         thewriter = csv.writer(f)
         thewriter.writerow(['Phosphorylation_Site_Mutagenesis'])
+    #print('phos_mut')
 
     if prompt.upper() == 'A':
         aa = 'A'
@@ -462,6 +482,7 @@ def main():
     mutations = choose_mut()
     create_output()
 
+
     if 'A' in mutations:
         print ('Custom Scan')
         custom_scan()
@@ -472,4 +493,7 @@ def main():
         print('phosphorylation site mutagenesis')
         phos_mut()
 
+    #print(*mutations)
+    #print (seq)
+    #print(start)
 main()
