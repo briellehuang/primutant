@@ -473,4 +473,5 @@ def main():
         print('phosphorylation site mutagenesis')
         phos_mut()
 
-main()
+if __name__ == "__main__":
+    main()
