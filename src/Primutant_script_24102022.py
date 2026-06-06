@@ -29,10 +29,12 @@ med_test = int(0)
 low_test = int(0)
 
 
-"""Import melting, csv, and primer3 file modules"""
+"""Import melting, csv, os, re, and primer3 file modules"""
 
 import melting
 import csv
+import os
+import re
 import primer3
 
 """Prompts user until entering a valid sequence for the program"""
@@ -249,10 +251,6 @@ def seq_translate(seq, dictionary):
 """Creates a output file with appropriate headings"""
 
 def create_output():
-    #changes the file name to be "genename_mutagenesis.csv"
-    global csv_name
-    csv_name = gene_name + "_mutagenesis" + ".csv"
-    csv_name = csv_name.strip()
     seq_translate(seq, codon_table)
     with open(csv_name,'w',newline='') as f:
         thewriter=csv.writer(f)
@@ -452,9 +450,21 @@ def StructureCheck(Structure, Structure_Check, primTm, warning, tmp):
 """Main function:"""
 
 def main():
-
     global gene_name
-    gene_name = input('Please enter the gene name with no spaces or special characters: ')
+    while True:
+        gene_name = input('Please enter the gene name with no spaces or special characters: ')
+        if not gene_name:
+            print("Gene name cannot be empty")
+            continue
+        if not re.match(r"^\w+$", gene_name):
+            print("Gene name cannot contain special characters")
+            continue
+        global csv_name
+        csv_name = f"{gene_name}_mutagenesis.csv"
+        if os.path.exists(csv_name):
+            print(f"The file {csv_name} already exists. Please choose a diferent name.")
+            continue
+        break
     seq_test()
     start_check()
     reg_check()
