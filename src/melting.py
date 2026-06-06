@@ -21,7 +21,7 @@ from __future__ import division
 from math import sqrt, log
 import argparse
 import sys
-from pkg_resources import get_distribution
+from importlib.metadata import version as get_version
 
 def _is_sym(seq):
     """Returns True if s is symmetric (same as rev. complement)"""
@@ -223,7 +223,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument(
         "--version",
         action="version",
-        version=get_distribution('melt').version
+        version=get_version('melt')
     )
 
     args = parser.parse_args(argv)
