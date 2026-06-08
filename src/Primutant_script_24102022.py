@@ -79,7 +79,7 @@ def start_check():
 def Dict_select():
     while True:
         global Mut_dict
-        Mut_dict=str(input("What type of cells will be used: A for E.coli, B for Mamallian:"))
+        Mut_dict=str(input("What type of cells will be used: A for E.coli, B for Mamallian:")).upper()
         if Mut_dict == "A":
             Mut_dict = ecoli_dict
             break
@@ -87,7 +87,7 @@ def Dict_select():
             Mut_dict = mammalian_dict
             break
         else:
-            print("this is not a valid response")
+            print("Please enter a valid response.")
 
 """Checks the defined region of mutation with the user before continuing"""
 
@@ -108,7 +108,7 @@ def reg_check():
             to_continue = True
             gc_start =(reg_start-1)
         elif check.upper() != 'Y' or 'N':
-            print('Please enter a valid response')
+            print('Please enter a valid response.')
 
 """Choosing the mutation types that one would like to perform on the region of mutation"""
 
@@ -125,7 +125,7 @@ def choose_mut():
                 finish = True
                 return choices
         else:
-            print('Please enter a valid response')
+            print('Please enter a valid response.')
 
 """Determining codon position"""
 
